@@ -1,4 +1,4 @@
-# I've managed to get the overlaid images to display in matplotlib figure - but still trying to get it into the canvas space I've created
+# I've managed to get the overlaid images to display from matplotlib figure in the canvas :)
 # REQUIRED: Test/validation images need to be nested into folders eg.
 # all_data --> testing_set --> volume_1 --> slice_n.h5
 
@@ -10,6 +10,7 @@ import numpy as np
 import cv2
 import h5py
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class ImageGUI:
    
@@ -89,6 +90,8 @@ class ImageGUI:
         file_directory = f"{self.slice_directory}/slice_{self.slice_value}.h5"
 
         figure, axes = plt.subplots()
+        figure.patch.set_facecolor('#F0F0F0')
+
         with h5py.File(file_directory, 'r') as file:
             image = file["image"]
             current_image = image[:,:,self.channel_idx]
@@ -103,13 +106,15 @@ class ImageGUI:
 
                 axes.imshow(mask_comp, cmap='gray', alpha=self.alpha)
 
-            plt.show()
-            
-# --------- # Figuring out how to get plt to display in tkinter canvas # ---------- #
-            #figure.canvas.draw()
-            #self.display_image = ImageTk.PhotoImage(figure.canvas, master=self.canvas)
-            
-            print("\n    output: display image of selected slice, channel and annotation overlay")
+            axes.axis("off")
+            figure.tight_layout()
+
+            # Create tkinter canvas
+            canvas = FigureCanvasTkAgg(figure, master=self.canvas)
+            canvas.draw()
+
+            # Pack new canvas into GUI window
+            canvas.get_tk_widget().grid(row=1, rowspan=5, column=2, columnspan=2)
 
     ## ___________________________________________________________________________________ Load slice directory function
     def load_slice_directory(self):
@@ -124,14 +129,8 @@ class ImageGUI:
 
     ## ___________________________________________________________________________________ Function to handle annotation dropdown 
     def update_annotation_value(self, event):
-        print()
+        # Retrieve annotation value from dropdown
         self.annotation_value = self.annotation_dropdown.get()
-        print(f"annotation_value: {self.annotation_value}")
-
-        if self.annotation_value == "ON":
-            print("    output: overlay segementation annotation on image")
-        else:
-            print("    output: display only image")
 
         if self.slice_directory is not None:
             # Update image
@@ -139,15 +138,13 @@ class ImageGUI:
 
     ## ___________________________________________________________________________________ Function to handle channel dropdown 
     def update_channel_selection(self, event):
-        print()
+        # Retrieve channel selection from dropdown
         self.channel_options = ["T2-FLAIR", "T1", "T1-Gd", "T2"]
 
         channel_selection = self.channel_dropdown.get()
-        print(f"channel_selection: {channel_selection}")
 
         # Get index to encode channel selection from slice array
         self.channel_idx = self.channel_options.index(channel_selection)
-        print(f"channel_idx: {self.channel_idx}")
 
         if self.slice_directory is not None:
             # Update image
@@ -155,11 +152,8 @@ class ImageGUI:
     
     ## ___________________________________________________________________________________ Function to update slice value
     def update_slice_value(self, event):
-        print()
+        # Retrieve slice value from slider
         self.slice_value = self.slice_slider.get()
-        print("update_slice_value(self)")
-        print("    output: update variable slice_value")
-        print(f"    slice_value: {self.slice_value}")
 
         if self.slice_directory is not None:
             # Update image
