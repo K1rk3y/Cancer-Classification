@@ -5,9 +5,8 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-from PIL import ImageTk, Image
 import numpy as np
-import cv2
+import os
 import h5py
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -23,6 +22,15 @@ class ImageGUI:
          self.custom_font0 = ("Arial", 16, "bold", "underline") # Title
          self.custom_font1 = ("Arial", 12, "bold") # Heading
          self.custom_font2 = ("Arial", 12) # Body
+
+         # Initiate global variables
+         self.slice_directory = None
+         self.slice_value = 0
+         self.channel_idx = 1
+         self.annotation_value = "OFF"
+         self.alpha = 0.5
+         self.slider_min = 0
+         self.slider_max = 154
     
          # Create a frame for the GUI and center it
          self.frame = tk.Frame(self.master)
@@ -66,7 +74,7 @@ class ImageGUI:
          self.slicer_slider_label = tk.Label(self.border, text="Select Slice:", font=self.custom_font1)
          self.slicer_slider_label.grid(row=4, column=0, padx=5, pady=5)
 
-         self.slice_slider = tk.Scale(self.border, from_=0, to=100, orient=tk.HORIZONTAL, length=200,  command=self.update_slice_value, font=self.custom_font2)
+         self.slice_slider = tk.Scale(self.border, from_=self.slider_min, to=self.slider_max, orient=tk.HORIZONTAL, length=200,  command=self.update_slice_value, font=self.custom_font2)
          self.slice_slider.grid(row=4, column=1, padx=5, pady=5)
 
          # Create a blank canvas on which to show image
@@ -76,13 +84,7 @@ class ImageGUI:
          # Extract conventional features button
          self.extractconventionalfeatures_button = tk.Button(self.border, text="Extract Conventional Features", command=self.extract_conventional_features, font=self.custom_font1)
          self.extractconventionalfeatures_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
-
-         # Initiate global variables
-         self.slice_directory = None
-         self.slice_value = 0
-         self.channel_idx = 1
-         self.annotation_value = "OFF"
-         self.alpha = 0.5
+         
 
     ## ___________________________________________________________________________________ Show image function
     def show_image(self):
@@ -124,6 +126,24 @@ class ImageGUI:
         print("    Directory selected!")
         print(f"    output: slice_directory = '{self.slice_directory}'")
 
+        # Get min and max slice values
+        h5_files = os.listdir(self.slice_directory)
+        # Filter only .h5 files
+        h5_files = [file for file in h5_files if file.endswith(".h5")]
+        slice_numbers = [int(file.split("_")[1].split(".")[0]) for file in h5_files]
+
+        self.slider_min = min(slice_numbers)
+        self.slider_max = max(slice_numbers)
+        self.slice_slider = tk.Scale(self.border, from_=self.slider_min, to=self.slider_max, orient=tk.HORIZONTAL, length=200,  command=self.update_slice_value, font=self.custom_font2)
+        self.slice_slider.grid(row=4, column=1, padx=5, pady=5)
+        
+        if self.slice_value >= self.slider_max:
+            self.slice_value = self.slider_max
+            self.slice_slider.set(self.slice_value)
+        if self.slice_value <= self.slider_min:
+            self.slice_value = self.slider_min
+            self.slice_slider.set(self.slice_value)
+            
         # Update image
         self.show_image()
 
