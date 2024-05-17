@@ -79,11 +79,16 @@ class ImageGUI:
 
          # Create a blank canvas on which to show image
          self.canvas = tk.Canvas(self.border, width=241, height=241, bg="black")
-         self.canvas.grid(row=1, rowspan=5, column=2, columnspan=2, padx=5, pady=5)
+         self.canvas.grid(row=1, rowspan=6, column=2, columnspan=2, padx=5, pady=5)
 
          # Extract conventional features button
          self.extractconventionalfeatures_button = tk.Button(self.border, text="Extract Conventional Features", command=self.extract_conventional_features, font=self.custom_font1)
          self.extractconventionalfeatures_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+
+         # Extract radiomic features button
+         self.extractradiomicfeatures_button = tk.Button(self.border, text="Extract Radiomic Features", command=self.extract_radiomic_features, font=self.custom_font1)
+         self.extractradiomicfeatures_button.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
+         
          
 
     ## ___________________________________________________________________________________ Show image function
@@ -184,6 +189,12 @@ class ImageGUI:
         print()
         print("extract_conventional_features(self)")
         print("    output: calculate and save conventional features to csv")
+
+    ## ___________________________________________________________________________________ Extract conventional features function
+    def extract_radiomic_features(self):
+        print()
+        print("extract_radiomic_features(self)")
+        print("    output: calculate and save radiomic features to csv")
 
 # Run
 root = tk.Tk()
