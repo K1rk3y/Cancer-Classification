@@ -99,6 +99,10 @@ class ImageGUI:
         figure, axes = plt.subplots()
         figure.patch.set_facecolor('#F0F0F0')
 
+        # Close previous figure
+        plt.close(figure)
+
+        # Create new figure
         with h5py.File(file_directory, 'r') as file:
             image = file["image"]
             current_image = image[:,:,self.channel_idx]
