@@ -1,4 +1,3 @@
-# I've managed to get the overlaid images to display from matplotlib figure in the canvas :)
 # REQUIRED: Test/validation images need to be nested into folders eg.
 # all_data --> testing_set --> volume_1 --> slice_n.h5
 
@@ -10,6 +9,7 @@ import os
 import h5py
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import cv2
 
 class ImageGUI:
    
@@ -105,17 +105,32 @@ class ImageGUI:
         # Create new figure
         with h5py.File(file_directory, 'r') as file:
             image = file["image"]
-            current_image = image[:,:,self.channel_idx]
 
-            axes.imshow(current_image, cmap='gray')
+            # Make numpy array
+            imageArray = np.array(image)
+            # Normalise
+            normimageArray = cv2.normalize(imageArray[:,:,self.channel_idx], None, norm_type=cv2.NORM_MINMAX)
+            # Show image from selected channel
+            axes.imshow(normimageArray, cmap='gray')
             
+            # Check if annotation is ON
             if self.annotation_value == "ON":
+                # Annotation is ON then Overlay mask
                 mask = file["mask"]
-            
                 # Make a composite of all 3 channels of the mask segmentation
                 mask_comp = np.sum(mask, axis=2)
 
-                axes.imshow(mask_comp, cmap='gray', alpha=self.alpha)
+                # Ensure compatible with cv2.normalise
+                if mask_comp.dtype != np.float32:
+                    mask_comp = mask_comp.astype(np.float32)
+
+                # Make numpy array
+                maskcompArray = np.array(mask_comp)
+                # Normalise
+                normmaskcompArray = cv2.normalize(maskcompArray, None, norm_type=cv2.NORM_MINMAX)
+
+                # Overlay mask
+                axes.imshow(normmaskcompArray*255, cmap='gray', alpha=self.alpha)
 
             axes.axis("off")
             figure.tight_layout()
