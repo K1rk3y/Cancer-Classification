@@ -1,5 +1,5 @@
-# REQUIRED: Test/validation images need to be nested into folders eg.
-# all_data --> testing_set --> volume_1 --> slice_n.h5
+## File structure
+## data --> "volume_x_slice_n.h5"
 
 import tkinter as tk
 from tkinter import filedialog
