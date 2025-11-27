@@ -1,2 +1,1 @@
-# CITS4402_Project
-A CV approach to cancer diagnosis.
+A classical macro feature SVM approach to cancer diagnosis.
